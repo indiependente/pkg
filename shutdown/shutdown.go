@@ -10,6 +10,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// TerminationFn is a callback invoked on context cancellation.
 type TerminationFn func(context.Context) error
 
 // Wait allows the service to wait for a termination signal, start the cancellation process by calling
