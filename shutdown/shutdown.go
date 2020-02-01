@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/indiependente/pkg/logger"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -15,7 +16,7 @@ type TerminationFn func(context.Context) error
 
 // Wait allows the service to wait for a termination signal, start the cancellation process by calling
 // the context.CancelFunc in order to perform a graceful service shutdown executing the TerminationFn in input.
-func Wait(ctx context.Context, cancel context.CancelFunc, termFn TerminationFn, logger logger) error {
+func Wait(ctx context.Context, cancel context.CancelFunc, termFn TerminationFn, logger logger.Logger) error {
 	var (
 		gracefulStop = make(chan os.Signal, 1)
 		eg           errgroup.Group
@@ -45,10 +46,4 @@ func Wait(ctx context.Context, cancel context.CancelFunc, termFn TerminationFn, 
 	}
 
 	return nil
-}
-
-type logger interface {
-	Event(string) logger
-	Signal(os.Signal) logger
-	Info(string)
 }
