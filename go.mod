@@ -3,8 +3,9 @@ module github.com/indiependente/pkg
 go 1.13
 
 require (
-	github.com/go-openapi/strfmt v0.21.3
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/rs/zerolog v1.29.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 )

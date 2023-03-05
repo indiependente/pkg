@@ -5,8 +5,8 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -40,22 +40,36 @@ func (lk LogKey) String() string {
 }
 
 const (
-	callerKey     LogKey = "caller"
-	eventKey      LogKey = "event"
-	requestIDKey  LogKey = "request_id"
-	statusCodeKey LogKey = "status_code"
-	serviceKey    LogKey = "service"
-	signalKey     LogKey = "signal"
+	bytesWrittenKey LogKey = "bytes_written"
+	callerKey       LogKey = "caller"
+	durationKey     LogKey = "duration"
+	eventKey        LogKey = "event"
+	hostKey         LogKey = "host"
+	methodKey       LogKey = "method_key"
+	remoteAddrKey   LogKey = "remote_addr_key"
+	requestIDKey    LogKey = "request_id"
+	serviceKey      LogKey = "service"
+	signalKey       LogKey = "signal"
+	statusCodeKey   LogKey = "status_code"
+	uriKey          LogKey = "uri_key"
+	userAgentKey    LogKey = "user_agent_key"
 )
 
 // Logger defines the behavior of the logger.
 // Exposes a function for each loggable field which maps to a LogKey.
 // The functions invocations can be chained and terminated by one of the levelled function calls (Fatal, Error, Warn, Info).
 type Logger interface {
+	BytesWritten(int) Logger
+	Duration(time.Duration) Logger
+	Host(string) Logger
+	Method(string) Logger
 	Event(string) Logger
-	RequestID(strfmt.UUID) Logger
+	RequestID(string) Logger
+	RemoteAddr(string) Logger
 	StatusCode(int) Logger
 	Signal(fmt.Stringer) Logger
+	URI(string) Logger
+	UserAgent(string) Logger
 
 	// These are the last functions that should be called on a log chain.
 	// These will execute and log all the information
@@ -67,22 +81,67 @@ type Logger interface {
 	Debug(msg string)
 }
 
-// FastLogger implements the LogChainer interface and relies on http://github.com/rs/zerolog
+// compile time interface check.
+var _ Logger = &FastLogger{}
+
+// FastLogger implements the LogChainer interface and relies on http://github.com/rs/zerolog.
 type FastLogger struct {
 	lggr zerolog.Logger
 }
 
-// Event instructs the logger to log the event.
-func (l *FastLogger) Event(p string) Logger {
+// BytesWritten instructs the logger to log the bytes written.
+func (l *FastLogger) BytesWritten(bw int) Logger {
 	lcopy := *l
-	lcopy.lggr = l.lggr.With().Str(eventKey.String(), p).Logger()
+	lcopy.lggr = l.lggr.With().Int(bytesWrittenKey.String(), bw).Logger()
+	return &lcopy
+}
+
+// Duration instructs the logger to log the duration.
+func (l *FastLogger) Duration(d time.Duration) Logger {
+	lcopy := *l
+	lcopy.lggr = l.lggr.With().Dur(durationKey.String(), d).Logger()
+	return &lcopy
+}
+
+// Host instructs the logger to log the host.
+func (l *FastLogger) Host(h string) Logger {
+	lcopy := *l
+	lcopy.lggr = l.lggr.With().Str(hostKey.String(), h).Logger()
+	return &lcopy
+}
+
+// UserAgent instructs the logger to log the user agent.
+func (l *FastLogger) UserAgent(ua string) Logger {
+	lcopy := *l
+	lcopy.lggr = l.lggr.With().Str(userAgentKey.String(), ua).Logger()
+	return &lcopy
+}
+
+// Method instructs the logger to log the method.
+func (l *FastLogger) Method(m string) Logger {
+	lcopy := *l
+	lcopy.lggr = l.lggr.With().Str(methodKey.String(), m).Logger()
+	return &lcopy
+}
+
+// Event instructs the logger to log the event.
+func (l *FastLogger) Event(e string) Logger {
+	lcopy := *l
+	lcopy.lggr = l.lggr.With().Str(eventKey.String(), e).Logger()
 	return &lcopy
 }
 
 // RequestID instructs the logger to log the request ID.
-func (l *FastLogger) RequestID(id strfmt.UUID) Logger {
+func (l *FastLogger) RequestID(id string) Logger {
 	lcopy := *l
-	lcopy.lggr = l.lggr.With().Str(requestIDKey.String(), string(id)).Logger()
+	lcopy.lggr = l.lggr.With().Str(requestIDKey.String(), id).Logger()
+	return &lcopy
+}
+
+// RemoteAddr instructs the logger to log the remote address.
+func (l *FastLogger) RemoteAddr(addr string) Logger {
+	lcopy := *l
+	lcopy.lggr = l.lggr.With().Str(remoteAddrKey.String(), addr).Logger()
 	return &lcopy
 }
 
@@ -97,6 +156,13 @@ func (l *FastLogger) StatusCode(sc int) Logger {
 func (l *FastLogger) Signal(sig fmt.Stringer) Logger {
 	lcopy := *l
 	lcopy.lggr = l.lggr.With().Str(signalKey.String(), sig.String()).Logger()
+	return &lcopy
+}
+
+// URI instructs the logger to log the URI.
+func (l *FastLogger) URI(uri string) Logger {
+	lcopy := *l
+	lcopy.lggr = l.lggr.With().Str(uriKey.String(), uri).Logger()
 	return &lcopy
 }
 
