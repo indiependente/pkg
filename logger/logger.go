@@ -45,14 +45,14 @@ const (
 	durationKey     LogKey = "duration"
 	eventKey        LogKey = "event"
 	hostKey         LogKey = "host"
-	methodKey       LogKey = "method_key"
-	remoteAddrKey   LogKey = "remote_addr_key"
+	methodKey       LogKey = "method"
+	remoteAddrKey   LogKey = "remote_addr"
 	requestIDKey    LogKey = "request_id"
 	serviceKey      LogKey = "service"
 	signalKey       LogKey = "signal"
 	statusCodeKey   LogKey = "status_code"
-	uriKey          LogKey = "uri_key"
-	userAgentKey    LogKey = "user_agent_key"
+	uriKey          LogKey = "uri"
+	userAgentKey    LogKey = "user_agent"
 )
 
 // Logger defines the behavior of the logger.
