@@ -96,7 +96,7 @@ func (l *FastLogger) BytesWritten(bw int) Logger {
 	return &lcopy
 }
 
-// d instructs the logger to log the duration.
+// Duration instructs the logger to log the duration.
 func (l *FastLogger) Duration(d time.Duration) Logger {
 	lcopy := *l
 	lcopy.lggr = l.lggr.With().Dur(durationKey.String(), d).Logger()
